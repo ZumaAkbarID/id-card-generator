@@ -1,0 +1,19 @@
+{
+  "name": "id-card-generator",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "mysql2": "^3.11.0",
+    "qrcode": "^1.5.4",
+    "sharp": "^0.33.5"
+  }
+}
