@@ -6,8 +6,18 @@ const QRCode = require('qrcode');
 const dotenv = require('dotenv');
 dotenv.config();
 
+// Fungsi untuk menulis log ke file
+function logToFile(message) {
+  const logFilePath = path.join(__dirname, 'process.log');
+  const timestamp = new Date().toISOString();
+  const logMessage = `[${timestamp}] ${message}\n`;
+
+  // Tulis log ke file
+  fs.appendFileSync(logFilePath, logMessage, 'utf8');
+}
+
 async function fetchAsistenAndCreateDir() {
-  console.info("CONNECTING TO DATABASE...");
+  logToFile("CONNECTING TO DATABASE...");
 
   // Koneksi ke database MySQL
   const connection = mysql.createConnection({
@@ -21,11 +31,11 @@ async function fetchAsistenAndCreateDir() {
     UR QUERY
   `, async (err, results) => {
     if (err) {
-      console.error('Error saat menjalankan query:', err);
+      logToFile(`Error saat menjalankan query: ${err}`);
       connection.end();
       return;
     }
-    console.info("CONNECTED");
+    logToFile("CONNECTED TO DATABASE");
 
     // Menentukan path direktori output
     const now = new Date();
@@ -60,30 +70,31 @@ async function fetchAsistenAndCreateDir() {
       if (fs.existsSync(imagePathWebp)) {
         try {
           await sharp(imagePathWebp).toFile(finalImagePath);
-          console.log(`Gambar berhasil dikonversi ke jpg: ${finalImagePath}`);
+          logToFile(`Gambar berhasil dikonversi ke jpg: ${finalImagePath}`);
         } catch (err) {
-          console.error(`Error saat mengonversi gambar ${imagePathWebp} ke jpg:`, err);
+          logToFile(`Error saat mengonversi gambar ${imagePathWebp} ke jpg: ${err}`);
         }
       } else if (fs.existsSync(imagePathJpg)) {
         // Jika file sudah jpg, cukup salin ke folder output
         fs.copyFileSync(imagePathJpg, finalImagePath);
-        console.log(`Gambar jpg berhasil disalin: ${finalImagePath}`);
+        logToFile(`Gambar jpg berhasil disalin: ${finalImagePath}`);
       } else {
-        console.log(`Gambar tidak ditemukan untuk NPM: ${row.npm}`);
+        logToFile(`Gambar tidak ditemukan untuk NPM: ${row.npm}`);
       }
 
       // Generate QR code
       const qrCodeURL = `${process.env.VALIDATE_QR_URL}${row.npm}`;
       try {
         await QRCode.toFile(qrCodePath, qrCodeURL);
-        console.log(`QR code berhasil dibuat: ${qrCodePath}`);
+        logToFile(`QR code berhasil dibuat: ${qrCodePath}`);
       } catch (err) {
-        console.error(`Error saat membuat QR code untuk ${qrCodeURL}:`, err);
+        logToFile(`Error saat membuat QR code untuk ${qrCodeURL}: ${err}`);
       }
     }
 
     connection.end();
+    logToFile("DATABASE CONNECTION CLOSED");
   });
 }
 
-fetchAsistenAndCreateDir().catch(err => console.error('Error:', err));
+fetchAsistenAndCreateDir().catch(err => logToFile(`Error: ${err}`));
