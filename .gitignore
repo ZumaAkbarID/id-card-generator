@@ -2,3 +2,5 @@
 /output/*
 query.txt
 /src/process.log
+
+.env
