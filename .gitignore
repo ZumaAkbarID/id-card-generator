@@ -1,6 +1,5 @@
+.env
 /node_modules
 /output/*
 query.txt
 /src/process.log
-
-.env
